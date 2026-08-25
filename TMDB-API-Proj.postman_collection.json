@@ -1,0 +1,531 @@
+{
+  "info": {
+    "_postman_id": "f34bf1e0-9673-412c-bfff-a7c77628f96e",
+    "name": "TMDB-API-Proj",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "56829626",
+    "_collection_link": "https://go.postman.co/collection/56829626-f34bf1e0-9673-412c-bfff-a7c77628f96e?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Authentication Test",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"Response is for Fight Club (id 550)\", function () {\r\n    var Body = pm.response.json();\r\n    pm.expect(Body.id).to.eql(550);\r\n    pm.expect(Body.original_title).to.eql(\"Fight Club\");\r\n  \r\n});\r\n\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/movie/550",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "movie",
+            "550"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Search Movies by Keyword",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const Body = pm.response.json();\r\n\r\n// 1. Status code = 200 OK\r\npm.test(\"Status code is 200 OK\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// 2. Response contains results[] array\r\npm.test(\"Response contains results array\", function () {\r\n    pm.expect(Body).to.have.property(\"results\");\r\n    pm.expect(Body.results).to.be.an(\"array\");\r\n});\r\n\r\n// 3. Movie titles are relevant to search keyword\r\npm.test(\"Movie titles are relevant to search keyword\", function () {\r\n\r\n    const keyword = \"inception\";\r\n\r\n    Body.results.forEach(function (movie) {\r\n\r\n        pm.expect(movie.title.toLowerCase()).to.include(keyword);\r\n    });\r\n});\r\n\r\n// 4. Each result contains required fields\r\npm.test(\"Each result contains required fields\", function () {\r\n\r\n    Body.results.forEach(function (movie) {\r\n\r\n        pm.expect(movie).to.have.property(\"id\");\r\n        pm.expect(movie).to.have.property(\"title\");\r\n        pm.expect(movie).to.have.property(\"release_date\");\r\n        pm.expect(movie).to.have.property(\"overview\");\r\n    });\r\n});\r\n\r\n// 5. Confirm total_results > 0\r\npm.test(\"Total results is greater than 0\", function () {\r\n\r\n    pm.expect(Body.total_results).to.be.above(0);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/search/movie?query=inception&language=en-US",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "search",
+            "movie"
+          ],
+          "query": [
+            {
+              "key": "query",
+              "value": "inception"
+            },
+            {
+              "key": "language",
+              "value": "en-US"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Search TV Shows by Name",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const Body = pm.response.json();\r\n\r\n// 1. Status code = 200 OK\r\npm.test(\"Status code is 200 OK\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// 2. Response contains results[] array\r\npm.test(\"Response contains results array\", function () {\r\n    pm.expect(Body).to.have.property(\"results\");\r\n    pm.expect(Body.results).to.be.an(\"array\");\r\n});\r\n\r\n// 3. Results contains at least one item\r\npm.test(\"Results contains at least one TV show\", function () {\r\n    pm.expect(Body.results.length).to.be.above(0);\r\n});\r\n\r\n// 4. Each result contains required fields\r\npm.test(\"Each TV show contains required fields\", function () {\r\n\r\n    Body.results.forEach(function (show) {\r\n\r\n        pm.expect(show).to.have.property(\"id\");\r\n        pm.expect(show).to.have.property(\"name\");\r\n        pm.expect(show).to.have.property(\"first_air_date\");\r\n        pm.expect(show).to.have.property(\"overview\");\r\n\r\n    });\r\n});\r\n\r\n// 5. Results are not empty\r\npm.test(\"Results are not empty\", function () {\r\n    pm.expect(Body.results).to.not.be.empty;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/search/tv?query=breaking+bad&language=en-US",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "search",
+            "tv"
+          ],
+          "query": [
+            {
+              "key": "query",
+              "value": "breaking+bad"
+            },
+            {
+              "key": "language",
+              "value": "en-US"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Movie Details by Movie ID",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var x = (Math.floor(Math.random() * 100000) + 1);\r\npm.environment.set(\"movie_id\", x);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const Body = pm.response.json();\r\n\r\n// 1. Status code = 200 OK\r\npm.test(\"Status code is 200 OK\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// 2. Validate required movie details\r\npm.test(\"Movie contains required details\", function () {\r\n    pm.expect(Body).to.have.property(\"title\");\r\n    pm.expect(Body).to.have.property(\"overview\");\r\n    pm.expect(Body).to.have.property(\"release_date\");\r\n    pm.expect(Body).to.have.property(\"runtime\");\r\n});\r\n\r\n// 3. Genres array is not empty\r\npm.test(\"Genres array is not empty\", function () {\r\n    pm.expect(Body).to.have.property(\"genres\");\r\n    pm.expect(Body.genres).to.be.an(\"array\");\r\n    pm.expect(Body.genres.length).to.be.above(0);\r\n});\r\n\r\n// 4. Production companies is present\r\npm.test(\"Production companies is present\", function () {\r\n    pm.expect(Body).to.have.property(\"production_companies\");\r\n    pm.expect(Body.production_companies).to.be.an(\"array\");\r\n});\r\n\r\n// 5. Budget field exists\r\npm.test(\"Budget field exists\", function () {\r\n    pm.expect(Body).to.have.property(\"budget\");\r\n});\r\n\r\n// 6. Revenue field exists\r\npm.test(\"Revenue field exists\", function () {\r\n    pm.expect(Body).to.have.property(\"revenue\");\r\n});\r\npm.test(\"Release date is not empty\", function () {\r\n    pm.expect(Body.release_date).to.not.be.empty});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/movie/{{movie_id}}",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "movie",
+            "{{movie_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Movie Credits (Cast & Crew)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const Body = pm.response.json();\r\n\r\n// 1. Status code = 200 OK\r\npm.test(\"Status code is 200 OK\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// 2. Response includes cast[] array\r\npm.test(\"Response contains cast array\", function () {\r\n    pm.expect(Body).to.have.property(\"cast\");\r\n    pm.expect(Body.cast).to.be.an(\"array\");\r\n});\r\n\r\n// 3. Response includes crew[] array\r\npm.test(\"Response contains crew array\", function () {\r\n    pm.expect(Body).to.have.property(\"crew\");\r\n    pm.expect(Body.crew).to.be.an(\"array\");\r\n});\r\n\r\n// 4. Validate each cast member\r\npm.test(\"Each cast member contains required fields\", function () {\r\n    Body.cast.forEach(function (castMember) {\r\n        pm.expect(castMember).to.have.property(\"id\");\r\n        pm.expect(castMember).to.have.property(\"name\");\r\n        pm.expect(castMember).to.have.property(\"character\");\r\n        pm.expect(castMember).to.have.property(\"order\");\r\n    });\r\n});\r\n\r\n\r\n// 5. Validate each crew member\r\npm.test(\"Each crew member contains required fields\", function () {\r\n    Body.crew.forEach(function (crewMember) {\r\n        pm.expect(crewMember).to.have.property(\"id\");\r\n        pm.expect(crewMember).to.have.property(\"name\");\r\n        pm.expect(crewMember).to.have.property(\"job\");\r\n        pm.expect(crewMember).to.have.property(\"department\");\r\n    });\r\n});\r\n\r\n// 6. Confirm cast list is not empty\r\npm.test(\"Cast list is not empty\", function () {\r\n    pm.expect(Body.cast.length).to.be.above(0);\r\n});\r\n//7.confirm crew list is not empty\r\npm.test(\"Crew list is not empty\", function () {\r\n    pm.expect(Body.crew.length).to.be.above(0);\r\n});"
+            ]
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var x = (Math.floor(Math.random() * 100000) + 1);\r\npm.environment.set(\"movie_id\", x);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/movie/{{movie_id}}/credits",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "movie",
+            "{{movie_id}}",
+            "credits"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Popular Movies",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const Body = pm.response.json();\r\n\r\n// 1. Status code = 200 OK\r\npm.test(\"Status code is 200 OK\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// 2. Results contains 20 items\r\npm.test(\"Results contains 20 movies\", function () {\r\n    pm.expect(Body.results).to.be.an(\"array\");\r\n    pm.expect(Body.results.length).to.equal(20);\r\n});\r\n\r\n// 3. Pagination fields are present\r\npm.test(\"Pagination fields are present\", function () {\r\n    pm.expect(Body).to.have.property(\"page\");\r\n    pm.expect(Body).to.have.property(\"total_pages\");\r\n    pm.expect(Body).to.have.property(\"total_results\");\r\n});\r\n\r\n// 4. Each movie contains required fields\r\npm.test(\"Each movie contains required fields\", function () {\r\n\r\n    Body.results.forEach(function (movie) {\r\n\r\n        pm.expect(movie).to.have.property(\"id\");\r\n        pm.expect(movie).to.have.property(\"title\");\r\n        pm.expect(movie).to.have.property(\"vote_average\");\r\n        pm.expect(movie).to.have.property(\"popularity\");\r\n\r\n    });\r\n});\r\n\r\n// 5. Results are sorted by popularity descending\r\npm.test(\"Movies are sorted by popularity descending\", function () {\r\n\r\n    for (let i = 0; i < Body.results.length - 1; i++) {\r\n\r\n        pm.expect(Body.results[i].popularity)\r\n            .to.be.at.least(Body.results[i + 1].popularity);\r\n\r\n    }\r\n\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/movie/popular?language=en-US&page=1",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "movie",
+            "popular"
+          ],
+          "query": [
+            {
+              "key": "language",
+              "value": "en-US"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get TV Show Details by ID",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var x = (Math.floor(Math.random() * 5000) + 1);\r\npm.environment.set(\"series_id\", x);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const Body = pm.response.json();\r\n\r\n// 1. Status code = 200 OK\r\npm.test(\"Status code is 200 OK\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// 2. Validate required fields\r\npm.test(\"TV show contains required fields\", function () {\r\n\r\n    pm.expect(Body).to.have.property(\"name\");\r\n    pm.expect(Body).to.have.property(\"overview\");\r\n    pm.expect(Body).to.have.property(\"first_air_date\");\r\n    pm.expect(Body).to.have.property(\"number_of_seasons\");\r\n\r\n});\r\n\r\n// 3. Genres array is not empty\r\npm.test(\"Genres array is not empty\", function () {\r\n\r\n    pm.expect(Body).to.have.property(\"genres\");\r\n    pm.expect(Body.genres).to.be.an(\"array\");\r\n    pm.expect(Body.genres.length).to.be.above(0);\r\n\r\n});\r\n\r\n// 4. Episode run time field exists\r\npm.test(\"Episode run time field exists\", function () {\r\n\r\n    pm.expect(Body).to.have.property(\"episode_run_time\");\r\n\r\n});\r\n\r\n// 5. Networks field is present\r\npm.test(\"Networks field is present\", function () {\r\n\r\n    pm.expect(Body).to.have.property(\"networks\");\r\n    pm.expect(Body.networks).to.be.an(\"array\");\r\n\r\n});\r\n\r\n// 6. Created by field is present\r\npm.test(\"Created by field is present\", function () {\r\n\r\n    pm.expect(Body).to.have.property(\"created_by\");\r\n    pm.expect(Body.created_by).to.be.an(\"array\");\r\n\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/tv/{{series_id}}",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "tv",
+            "{{series_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Movie Genres List",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const Body = pm.response.json();\r\n\r\n// 1. Status code = 200 OK\r\npm.test(\"Status code is 200 OK\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// 2. Response contains genres[] array\r\npm.test(\"Response contains genres array\", function () {\r\n    pm.expect(Body).to.have.property(\"genres\");\r\n    pm.expect(Body.genres).to.be.an(\"array\");\r\n});\r\n\r\n// 3. Genres list is not empty\r\npm.test(\"Genres list is not empty\", function () {\r\n    pm.expect(Body.genres.length).to.be.above(0);\r\n});\r\n\r\n// 4. Validate required genres are present\r\npm.test(\"Required genres are present\", function () {\r\n\r\n    const genreNames = Body.genres.map(function (genre) {\r\n        return genre.name;\r\n    });\r\n\r\n    pm.expect(genreNames).to.include(\"Action\");\r\n    pm.expect(genreNames).to.include(\"Comedy\");\r\n    pm.expect(genreNames).to.include(\"Drama\");\r\n\r\n});\r\n\r\n// 5. Each genre contains id and name\r\npm.test(\"Each genre contains id and name\", function () {\r\n\r\n    Body.genres.forEach(function (genre) {\r\n\r\n        pm.expect(genre).to.have.property(\"id\");\r\n        pm.expect(genre).to.have.property(\"name\");\r\n\r\n    });\r\n\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/genre/movie/list?language=en",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "genre",
+            "movie",
+            "list"
+          ],
+          "query": [
+            {
+              "key": "language",
+              "value": "en"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Discover Movies by Genre",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const Body = pm.response.json();\r\n\r\n\r\n// 1. Status code = 200 OK\r\npm.test(\"Status code is 200 OK\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n\r\n// 2. Response contains results array\r\npm.test(\"Response contains results array\", function () {\r\n    pm.expect(Body).to.have.property(\"results\");\r\n    pm.expect(Body.results).to.be.an(\"array\");\r\n});\r\n\r\n\r\n// 3. Each movie contains required fields\r\npm.test(\"Each movie contains required fields\", function () {\r\n\r\n    Body.results.forEach(function (movie) {\r\n\r\n        pm.expect(movie).to.have.property(\"id\");\r\n        pm.expect(movie).to.have.property(\"title\");\r\n        pm.expect(movie).to.have.property(\"genre_ids\");\r\n        pm.expect(movie).to.have.property(\"vote_average\");\r\n\r\n    });\r\n\r\n});\r\n\r\n\r\n// 4. Confirm genre_id appears in genre_ids[]\r\npm.test(\"Each movie contains the requested genre\", function () {\r\n\r\n    const genreId = Number(pm.environment.get(\"genre_id\"));\r\n\r\n    Body.results.forEach(function (movie) {\r\n\r\n        pm.expect(movie.genre_ids).to.include(genreId);\r\n\r\n    });\r\n\r\n});\r\n\r\n\r\n// 5. Validate pagination fields\r\npm.test(\"Pagination fields are present\", function () {\r\n\r\n    pm.expect(Body).to.have.property(\"page\");\r\n    pm.expect(Body).to.have.property(\"total_pages\");\r\n    pm.expect(Body).to.have.property(\"total_results\");\r\n\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/discover/movie?with_genres={{genre_id}}&sort_by=popularity.desc",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "discover",
+            "movie"
+          ],
+          "query": [
+            {
+              "key": "with_genres",
+              "value": "{{genre_id}}"
+            },
+            {
+              "key": "sort_by",
+              "value": "popularity.desc"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Now Playing Movies",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const Body = pm.response.json();\r\n\r\n\r\n// 1. Status code = 200 OK\r\npm.test(\"Status code is 200 OK\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n\r\n// 2. Response contains results[] and dates{}\r\npm.test(\"Response contains results array and dates object\", function () {\r\n    pm.expect(Body).to.have.property(\"results\");\r\n    pm.expect(Body.results).to.be.an(\"array\");\r\n    pm.expect(Body).to.have.property(\"dates\");\r\n    pm.expect(Body.dates).to.be.an(\"object\");\r\n});\r\n\r\n\r\n// 3. Dates object contains minimum and maximum\r\npm.test(\"Dates contains minimum and maximum\", function () {\r\n    pm.expect(Body.dates).to.have.property(\"minimum\");\r\n    pm.expect(Body.dates).to.have.property(\"maximum\");\r\n});\r\n\r\n\r\n// 4. Each movie contains required fields\r\npm.test(\"Each movie contains required fields\", function () {\r\n\r\n    Body.results.forEach(function (movie) {\r\n\r\n        pm.expect(movie).to.have.property(\"id\");\r\n        pm.expect(movie).to.have.property(\"title\");\r\n        pm.expect(movie).to.have.property(\"release_date\");\r\n        pm.expect(movie).to.have.property(\"vote_count\");\r\n\r\n    });\r\n\r\n});\r\n\r\n\r\n// 5. Movie release dates are within valid date range\r\npm.test(\"Movie release dates are within valid date range\", function () {\r\n\r\n    const minimumDate = new Date(Body.dates.minimum);\r\n    const maximumDate = new Date(Body.dates.maximum);\r\n\r\n    Body.results.forEach(function (movie) {\r\n\r\n        const releaseDate = new Date(movie.release_date);\r\n\r\n        pm.expect(releaseDate).to.be.at.least(minimumDate);\r\n        pm.expect(releaseDate).to.be.at.most(maximumDate);\r\n    });\r\n});\r\n\r\n"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/movie/now_playing?language=en-US&page=1",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "movie",
+            "now_playing"
+          ],
+          "query": [
+            {
+              "key": "language",
+              "value": "en-US"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Person Details (Actor/Director)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const Body = pm.response.json();\r\n\r\n// 1. Status code = 200 OK\r\npm.test(\"Status code is 200 OK\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n\r\n// 2. Validate required fields\r\npm.test(\"Person contains required fields\", function () {\r\n    pm.expect(Body).to.have.property(\"name\");\r\n    pm.expect(Body).to.have.property(\"biography\");\r\n    pm.expect(Body).to.have.property(\"birthday\");\r\n    pm.expect(Body).to.have.property(\"place_of_birth\");\r\n});\r\n\r\n\r\n// 3. known_for_department field exists\r\npm.test(\"Known for department field exists\", function () {\r\n    pm.expect(Body).to.have.property(\"known_for_department\");\r\n});\r\n\r\n\r\n// 4. Popularity is a number\r\npm.test(\"Popularity score is a number\", function () {\r\n    pm.expect(Body.popularity).to.be.a(\"number\");\r\n});\r\n\r\n\r\n// 5. also_known_as is an array\r\npm.test(\"Also known as array is present\", function () {\r\n    pm.expect(Body).to.have.property(\"also_known_as\");\r\n    pm.expect(Body.also_known_as).to.be.an(\"array\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/person/{{person_id}}",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "person",
+            "{{person_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Account ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const Body = pm.response.json();\r\n\r\npm.test(\"Status code is 200 OK\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Account ID is present\", function () {\r\n    pm.expect(Body).to.have.property(\"id\");\r\n});\r\n\r\npm.environment.set(\"account_id\", Body.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/account",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "account"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add Movie to Watchlist - First Request",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const Body = pm.response.json();\r\n\r\n\r\n// 1. Status code = 201 or 200\r\npm.test(\"Status code is 201 Created or 200 OK\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r\n});\r\n\r\n\r\n// 2. Response contains success: true\r\npm.test(\"Response contains success true\", function () {\r\n    pm.expect(Body).to.have.property(\"success\");\r\n    pm.expect(Body.success).to.be.true;\r\n});\r\n\r\n\r\n// 3. Status message confirms success\r\npm.test(\"Status message confirms the item was added\", function () {\r\n    pm.expect(Body).to.have.property(\"status_message\");\r\n    pm.expect(Body.status_message).to.be.a(\"string\");\r\n    pm.expect(Body.status_message.toLowerCase()).to.include(\"success\");\r\n});\r\n\r\n\r\n// 4. Validate media_type and media_id sent in request\r\npm.test(\"Request contains correct movie data\", function () {\r\n\r\n    const requestBody = JSON.parse(pm.request.body.raw);\r\n\r\n    pm.expect(requestBody.media_type).to.equal(\"movie\");\r\n    pm.expect(requestBody.media_id).to.equal(550);\r\n\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"media_type\": \"movie\",\r\n    \"media_id\": 550,\r\n    \"watchlist\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/account/{{account_id}}/watchlist",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "account",
+            "{{account_id}}",
+            "watchlist"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add Same Movie to Watchlist - Idempotency",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const Body = pm.response.json();\r\n\r\npm.test(\"Second request returns 200 OK\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Success is true\", function () {\r\n    pm.expect(Body).to.have.property(\"success\");\r\n    pm.expect(Body.success).to.be.true;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"media_type\": \"movie\",\r\n    \"media_id\": 550,\r\n    \"watchlist\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/account/{{account_id}}/watchlist",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "account",
+            "{{account_id}}",
+            "watchlist"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearer_token}}",
+        "type": "string"
+      }
+    ]
+  }
+}
